@@ -1,0 +1,1 @@
+launchpad @ git+https://github.com/FMMT666/launchpad.py.git@4cf4e59
