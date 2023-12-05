@@ -1,3 +1,14 @@
+OUTPUT_DIR = "/Users/randy/Documents/Saved_Games"
+
+# Color Constants
+ORANGE = (255, 0, 0)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+PURPLE = (255, 0, 255)
+OFF = (0, 0, 0)
+
+
 # Converts the returned coordinates from the event in the
 # The integer 81 would return the string "a8"
 # It's reversed and the first character is turned to a letter

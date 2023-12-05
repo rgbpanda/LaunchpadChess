@@ -1,15 +1,13 @@
 import chess
+import chess.pgn
+import collections
 import logging
 
 # from stockfish import Stockfish
 from launchpad import LaunchPad
 from pygame.time import wait
-
-ORANGE = (255, 0, 0)
-YELLOW = (255, 255, 0)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-PURPLE = (255, 0, 255)
+from helpers import *
+from datetime import datetime
 
 
 # This class basically handles which squares are selected
@@ -24,11 +22,18 @@ class Game:
 
         self.selected_square = None
         self.valid_moves = None
+        self.start_game()
 
+    def start_game(self):
+        self.launchpad.start_new_game()
+        self.board.reset()
         while True:
             event = self.launchpad.poll_for_event()
             if event:
+                if event == "`3":  # New game command is "Duplicate Button"
+                    break
                 self.process_touch_event(event)
+        self.start_game()
 
     # This takes a touch input on a square, updates the selected square
     # And makes the move if it is valid
@@ -59,7 +64,7 @@ class Game:
             self.selected_square = None
             wait(1000)
             self.launchpad.reset()
-            self.launchpad.set_player_indicator(self.board.turn)
+            self.update_status()
 
         elif square == self.selected_square:
             self._unselect_square(square)
@@ -74,6 +79,7 @@ class Game:
 
         logging.info(f"Unselecting {square}")
         self.launchpad.reset()
+        self.update_status()
         self.selected_square = None
 
     def _select_square(self, square):
@@ -108,3 +114,67 @@ class Game:
             wait(100)
 
         self.launchpad.light_square(square)
+
+    def update_status(self):
+        print(f"STALEMATE: {self.board.is_stalemate()}")
+        print(f"INSUF MATERIAL DRAW: {self.board.is_insufficient_material()}")
+        print(f"OUTCOME: {self.board.outcome()}")
+
+        # Light up king with Yellow
+        if self.board.is_check():
+            if self.board.turn:  # White players turn
+                king_square_index = self.board.king(chess.WHITE)
+                king_square_name = chess.square_name(king_square_index)
+                self.launchpad.light_square(king_square_name, YELLOW)
+            else:
+                king_square_index = self.board.king(chess.BLACK)
+                king_square_name = chess.square_name(king_square_index)
+                self.launchpad.light_square(king_square_name, YELLOW)
+
+        outcome = self.board.outcome()
+        if outcome:
+            if outcome.winner == chess.WHITE:
+                king_square_index = self.board.king(chess.BLACK)
+                king_square_name = chess.square_name(king_square_index)
+                self.launchpad.light_square(king_square_name, RED)
+                self.launchpad.set_winner_lights(white=True)
+
+            if outcome.winner == chess.BLACK:
+                king_square_index = self.board.king(chess.WHITE)
+                king_square_name = chess.square_name(king_square_index)
+                self.launchpad.light_square(king_square_name, RED)
+                self.launchpad.set_winner_lights(white=False)
+
+            # Stalemate
+            if outcome.winner is None:
+                self.launchpad.set_winner_lights(stalemate=True)
+
+            self.launchpad.reset_player_indicator()
+            game = self.get_game_pgn()
+            with open(f"{OUTPUT_DIR}/{datetime.now().isoformat()}.pgn", "w") as pgn:
+                pgn.write(str(game))
+
+        else:
+            self.launchpad.set_player_indicator(self.board.turn)
+
+    def get_game_pgn(self):
+        board = self.board
+        game = chess.pgn.Game()
+
+        # Undo all moves.
+        switchyard = collections.deque()
+        while board.move_stack:
+            switchyard.append(board.pop())
+
+        game.setup(board)
+        node = game
+
+        # Replay all moves.
+        while switchyard:
+            move = switchyard.pop()
+            node = node.add_variation(move)
+            board.push(move)
+        game.headers["Event"] = datetime.now().strftime("%H:%M:%S")
+        game.headers["Date"] = datetime.now().strftime("%Y.%m.%d")
+        game.headers["Result"] = board.result()
+        return game

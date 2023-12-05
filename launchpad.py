@@ -1,14 +1,21 @@
 import launchpad_py as launchpad
 import logging
 
-from helpers import touch_to_uci, uci_to_xy
+from helpers import *
 from pygame.time import wait
 
 logging.basicConfig(level=logging.INFO)
 
-BOARD_WHITE_COLOR = (5, 5, 2)
+BOARD_WHITE_COLOR = (5, 5, 3)
 BOARD_BLACK_COLOR = (0, 0, 30)
 
+UNDO_BUTTON = ()
+WHITE_TURN_BUTTON = (8, 8)
+BLACK_TURN_BUTTON = (8, 1)
+
+
+BLACKs_WIN_LIGHTS = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+WHITE_WIN_LIGHTS = [(0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9)]
 """
 This class represents low level functions needed to receive input
 and set a specific square to a color, or reset the board
@@ -28,10 +35,9 @@ class LaunchPad:
         self.default_colors = {}
         self.modified_spaces = []
 
-        # Setup all the lights for the chessboard
+    def start_new_game(self):
         self.lp.Reset()
         self._set_default_lights()
-        self._set_default_lights()  # Yes this needs to run twice
         self.set_player_indicator()
 
     def reset(self):
@@ -55,13 +61,28 @@ class LaunchPad:
             self.modified_spaces.append(uci)
             self._set_color_uci(uci, color)
 
-    def set_player_indicator(self, white=True):
-        if white:
-            self._set_color_uci("i1", (255, 0, 0))
-            self._set_color_uci("i8", (0, 0, 0))
+    def reset_player_indicator(self):
+        self._set_color_raw(WHITE_TURN_BUTTON, OFF)
+        self._set_color_raw(BLACK_TURN_BUTTON, OFF)
+
+    def set_player_indicator(self, white=True, off=False):
+        self._set_color_raw(BLACK_TURN_BUTTON, OFF)
+        self._set_color_raw(WHITE_TURN_BUTTON, OFF)
+
+        if white and not off:
+            self._set_color_raw(WHITE_TURN_BUTTON, RED)
+        elif not off:
+            self._set_color_raw(BLACK_TURN_BUTTON, RED)
+
+    def set_winner_lights(self, white=True, stalemate=False):
+        self.set_player_indicator(off=True)
+        if not stalemate:
+            winner_lights = WHITE_WIN_LIGHTS if white else BLACKs_WIN_LIGHTS
+            for light in winner_lights:
+                self._set_color_raw(light, GREEN)
         else:
-            self._set_color_uci("i8", (255, 0, 0))
-            self._set_color_uci("i1", (0, 0, 0))
+            for light in WHITE_WIN_LIGHTS + BLACKs_WIN_LIGHTS:
+                self._set_color_raw(light, YELLOW)
 
     # Chess square is a string representing the chess square i.e. "a8"
     # Color is a tuple containing the RGB values to set that square
@@ -72,6 +93,15 @@ class LaunchPad:
         self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
         wait(5)
         self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
+
+    # Set color using notation to this library (not chess notation)
+    # Useful for squares outside of the chess board (like player indicators)
+    def _set_color_raw(self, space, color):
+        self.lp.LedCtrlXY(space[0], space[1], color[0], color[1], color[2])
+        wait(5)
+        self.lp.LedCtrlXY(space[0], space[1], color[0], color[1], color[2])
+        wait(5)
+        self.lp.LedCtrlXY(space[0], space[1], color[0], color[1], color[2])
 
     def _set_default_lights(self):
         for x in range(1, 9):
