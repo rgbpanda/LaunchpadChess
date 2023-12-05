@@ -7,10 +7,15 @@ from pygame.time import wait
 logging.basicConfig(level=logging.INFO)
 
 BOARD_WHITE_COLOR = (5, 5, 2)
-BOARD_BLACK_COLOR = (0, 0, 10)
+BOARD_BLACK_COLOR = (0, 0, 30)
+
+"""
+This class represents low level functions needed to receive input
+and set a specific square to a color, or reset the board
+"""
 
 
-class LaunchPadBoard:
+class LaunchPad:
     def __init__(self):
         self.lp = launchpad.Launchpad()
         if self.lp.Check(0):
@@ -27,6 +32,7 @@ class LaunchPadBoard:
         self.lp.Reset()
         self._set_default_lights()
         self._set_default_lights()  # Yes this needs to run twice
+        self.set_player_indicator()
 
     def reset(self):
         for space in self.modified_spaces:
@@ -40,9 +46,22 @@ class LaunchPadBoard:
         if events != [] and events[0] != 255 and events[1] > 0:
             return touch_to_uci(events[0])
 
-    def light_square(self, uci, color):
-        self.modified_spaces.append(uci)
-        self._set_color_uci(uci, color)
+    def light_square(self, uci, color=None):
+        if not color:
+            self._set_color_uci(uci, self.default_colors[uci])
+            if uci in self.modified_spaces:
+                self.modified_spaces.remove(uci)
+        else:
+            self.modified_spaces.append(uci)
+            self._set_color_uci(uci, color)
+
+    def set_player_indicator(self, white=True):
+        if white:
+            self._set_color_uci("i1", (255, 0, 0))
+            self._set_color_uci("i8", (0, 0, 0))
+        else:
+            self._set_color_uci("i8", (255, 0, 0))
+            self._set_color_uci("i1", (0, 0, 0))
 
     # Chess square is a string representing the chess square i.e. "a8"
     # Color is a tuple containing the RGB values to set that square
