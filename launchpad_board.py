@@ -6,7 +6,7 @@ from pygame.time import wait
 
 logging.basicConfig(level=logging.INFO)
 
-BOARD_WHITE_COLOR = (10, 10, 5)
+BOARD_WHITE_COLOR = (5, 5, 2)
 BOARD_BLACK_COLOR = (0, 0, 10)
 
 

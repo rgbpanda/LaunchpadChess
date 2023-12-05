@@ -1,17 +1,12 @@
 import chess
 import logging
 
-from stockfish import Stockfish
+# from stockfish import Stockfish
 from launchpad_board import LaunchPadBoard
-from chess import Move, Square
 
 launchpad = LaunchPadBoard()
-engine = Stockfish()
+# engine = Stockfish()
 board = chess.Board()
-
-board.legal_moves
-# board.reset()
-print(board)
 
 ORANGE = (255, 0, 0)
 YELLOW = (255, 255, 0)
@@ -22,8 +17,7 @@ RED = (255, 0, 0)
 def light_valid_moves(square):
     for move in board.legal_moves:
         move = str(move)
-        if str(move).startswith(event):
-            print(move[2:])
+        if move.startswith(square):
             launchpad.light_square(move[2:], GREEN)
 
 
