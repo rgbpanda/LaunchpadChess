@@ -1,2 +1,4 @@
 launchpad-py==0.9.1
 pygame==2.5.2
+stockfish==3.28.0
+chess==1.10.0
