@@ -1,1 +1,2 @@
-launchpad @ git+https://github.com/FMMT666/launchpad.py.git@4cf4e59
+launchpad-py==0.9.1
+pygame==2.5.2
