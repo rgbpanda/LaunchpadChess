@@ -2,11 +2,9 @@ import logging
 
 from helpers import *
 from pygame.time import wait
+from launchpad import Launchpad
 
 logging.basicConfig(level=logging.INFO)
-
-BOARD_WHITE_COLOR = (5, 5, 3)
-BOARD_BLACK_COLOR = (0, 0, 30)
 
 UNDO_BUTTON = ()
 WHITE_TURN_BUTTON = (8, 8)
@@ -27,9 +25,10 @@ class LaunchPadGame:
     def __init__(self):
         self.default_colors = {}
         self.modified_spaces = []
+        self.launchpad = Launchpad()
 
     def start_new_game(self):
-        self.lp.Reset()
+        self.launchpad.reset()
         self._set_default_lights()
         self.set_player_indicator()
 
@@ -95,15 +94,3 @@ class LaunchPadGame:
         self.lp.LedCtrlXY(space[0], space[1], color[0], color[1], color[2])
         wait(5)
         self.lp.LedCtrlXY(space[0], space[1], color[0], color[1], color[2])
-
-    def _set_default_lights(self):
-        for x in range(1, 9):
-            for y in range(1, 9):
-                square_touch_event = int(str(x) + str(y))
-                uci = touch_to_uci(square_touch_event)
-                if (x % 2 == 0 and y % 2 == 0) or (x % 2 != 0 and y % 2 != 0):
-                    self.default_colors[uci] = BOARD_BLACK_COLOR
-                    self._set_color_uci(uci, BOARD_BLACK_COLOR)
-                else:
-                    self.default_colors[uci] = BOARD_WHITE_COLOR
-                    self._set_color_uci(uci, BOARD_WHITE_COLOR)
