@@ -1,6 +1,8 @@
 import logging
 
 import launchpad_py as launchpad
+from helpers import uci_to_xy
+from pygame.time import wait
 
 BLACK_SPACES = [
     int(str(x) + str(y))
@@ -56,6 +58,16 @@ class Launchpad:
 
     def _light_space(self, space, color):
         self.lp.LedCtrlRaw(space, color[0], color[1], color[2])
+
+    # Chess square is a string representing the chess square i.e. "a8"
+    # Color is a tuple containing the RGB values to set that square
+    def set_color_uci(self, uci, color):
+        x, y = uci_to_xy(uci)  # Try several times to be sure
+        self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
+        wait(5)
+        self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
+        wait(5)
+        self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
 
 
 launchpad = Launchpad()

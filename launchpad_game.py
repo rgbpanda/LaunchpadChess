@@ -32,26 +32,17 @@ class LaunchPadGame:
         self._set_default_lights()
         self.set_player_indicator()
 
-    def reset(self):
-        for space in self.modified_spaces:
-            self._set_color_uci(space, self.default_colors[space])
-        self.modified_spaces = []
-
     def poll_for_event(self):
-        events = self.lp.ButtonStateRaw(returnPressure=True)
-
-        # release_event is events[1] <= 0
-        if events != [] and events[0] != 255 and events[1] > 0:
-            return touch_to_uci(events[0])
+        self.launchpad.poll_for_event()
 
     def light_square(self, uci, color=None):
-        if not color:
-            self._set_color_uci(uci, self.default_colors[uci])
-            if uci in self.modified_spaces:
-                self.modified_spaces.remove(uci)
-        else:
-            self.modified_spaces.append(uci)
-            self._set_color_uci(uci, color)
+    #     if not color:
+    #         self._set_color_uci(uci, self.default_colors[uci])
+    #         if uci in self.modified_spaces:
+    #             self.modified_spaces.remove(uci)
+    #     else:
+    #         self.modified_spaces.append(uci)
+    #         self._set_color_uci(uci, color)
 
     def reset_player_indicator(self):
         self._set_color_raw(WHITE_TURN_BUTTON, OFF)
@@ -76,15 +67,7 @@ class LaunchPadGame:
             for light in WHITE_WIN_LIGHTS + BLACKs_WIN_LIGHTS:
                 self._set_color_raw(light, YELLOW)
 
-    # Chess square is a string representing the chess square i.e. "a8"
-    # Color is a tuple containing the RGB values to set that square
-    def _set_color_uci(self, uci, color):
-        x, y = uci_to_xy(uci)  # Try several times to be sure
-        self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
-        wait(5)
-        self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
-        wait(5)
-        self.lp.LedCtrlXY(x, y, color[0], color[1], color[2])
+
 
     # Set color using notation to this library (not chess notation)
     # Useful for squares outside of the chess board (like player indicators)
