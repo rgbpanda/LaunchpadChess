@@ -4,7 +4,7 @@ import collections
 import logging
 
 # from stockfish import Stockfish
-from launchpad import LaunchPad
+from launchpad_game import LaunchPadGame
 from pygame.time import wait
 from helpers import *
 from datetime import datetime
@@ -15,7 +15,7 @@ from datetime import datetime
 # into game commands that the python chess library can use
 class Game:
     def __init__(self):
-        self.launchpad = LaunchPad()
+        self.launchpad = LaunchPadGame()
         self.board = chess.Board()  # Manages the game itself
 
         # engine = Stockfish() This is for analytics later
