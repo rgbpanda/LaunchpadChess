@@ -51,3 +51,6 @@ class LaunchPadGame:
 
     def light_square(self, square, color):
         self.launchpad.set_color_uci(square, color)
+
+    def reset_square(self, square):
+        self.launchpad.reset_space(uci_to_launchpad(square))

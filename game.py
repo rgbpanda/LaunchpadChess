@@ -60,18 +60,25 @@ class Game:
 
         # Player made a valid move
         elif square in self.valid_moves:
-            # self.launchpad.reset()
+            move_from = self.selected_square
+            self._unselect_square(move_from)
             self.launchpad.light_square(square, PURPLE)
-            self.board.push(chess.Move.from_uci(self.selected_square + square))
-            self.selected_square = None
+
+            all_moves = [str(move) for move in self.board.legal_moves]
+            if (move_from + square + "q") in all_moves:
+                self.board.push(chess.Move.from_uci(move_from + square + "q"))
+            else:
+                self.board.push(chess.Move.from_uci(move_from + square))
             wait(1000)
-            # self.launchpad.reset()
+            self.launchpad.reset_square(square)
             self.update_status()
 
         elif square == self.selected_square:
             self._unselect_square(square)
 
         else:  # This is not a valid move
+            print(square)
+            print(self.valid_moves)
             self._blink_square(square, RED, YELLOW)
 
     def _unselect_square(self, square):
@@ -79,8 +86,16 @@ class Game:
             logging.error(f"Cannot unselect {square}, it is not selected!")
             return
 
+        valid_moves = set(
+            str(move)[2:]
+            for move in self.board.legal_moves
+            if str(move).startswith(square)
+        )  # These are the possible places that the piece on the selected square can move
+
+        for move_square in valid_moves:
+            self.launchpad.reset_square(move_square)
+        self.launchpad.reset_square(square)
         logging.info(f"Unselecting {square}")
-        # self.launchpad.reset()
         self.update_status()
         self.selected_square = None
 
@@ -90,7 +105,7 @@ class Game:
             return
 
         valid_moves = set(
-            str(move)[2:]
+            str(move)[2:4]
             for move in self.board.legal_moves
             if str(move).startswith(square)
         )  # These are the possible places that the piece on the selected square can move
@@ -100,7 +115,6 @@ class Game:
             return
 
         logging.info(f"Selected square is {square}")
-        # self.launchpad.reset()
         self.selected_square = square
         self.launchpad.light_square(square, ORANGE)
 
@@ -115,7 +129,7 @@ class Game:
             self.launchpad.light_square(square, color2)
             wait(100)
 
-        self.launchpad.light_square(square)
+        self.launchpad.reset_square(square)
 
     def update_status(self):
         print(f"STALEMATE: {self.board.is_stalemate()}")
@@ -132,6 +146,11 @@ class Game:
                 king_square_index = self.board.king(chess.BLACK)
                 king_square_name = chess.square_name(king_square_index)
                 self.launchpad.light_square(king_square_name, YELLOW)
+        else:
+            king_square_index = self.board.king(chess.WHITE)
+            king_square_index_b = self.board.king(chess.BLACK)
+            self._unselect_square(king_square_index)
+            self._unselect_square(king_square_index_b)
 
         outcome = self.board.outcome()
         if outcome:
