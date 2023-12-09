@@ -8,6 +8,7 @@ from launchpad_game import LaunchPadGame
 from pygame.time import wait
 from helpers import *
 from datetime import datetime
+from constants import *
 
 
 # This class basically handles which squares are selected
@@ -30,27 +31,28 @@ class Game:
         while True:
             event = self.launchpad.poll_for_event()
             if event:
-                if event == "`3":  # New game command is "Duplicate Button"
-                    break
                 self.process_touch_event(event)
-        self.start_game()
 
     # This takes a touch input on a square, updates the selected square
     # And makes the move if it is valid
-    def process_touch_event(self, square):
-        if square == "`6":  # Player pressed the undo button
-            print("undo button pressed")
+    def process_touch_event(self, event):
+        square = launchpad_to_uci(event)
+        if event == 60:  # Player pressed the undo button
+            logging.info("Undo button pressed")
             try:
                 last_move = str(self.board.pop())
                 self.launchpad.light_square(last_move[2:], RED)
                 self.launchpad.light_square(last_move[:-2], RED)
                 wait(3000)
-                self.launchpad.reset()
+                # self.launchpad.reset()
                 self.launchpad.set_player_indicator(self.board.turn)
             except IndexError:
                 logging.warning(
                     "Don't click the undo button if there aren't moves to undo"
                 )
+        elif event == 30:  # Player pressed the new game button
+            logging.info("New game button pressed")
+            self.start_game()
 
         # Player is selecting a square to make a move
         elif not self.selected_square:
@@ -58,12 +60,12 @@ class Game:
 
         # Player made a valid move
         elif square in self.valid_moves:
-            self.launchpad.reset()
+            # self.launchpad.reset()
             self.launchpad.light_square(square, PURPLE)
             self.board.push(chess.Move.from_uci(self.selected_square + square))
             self.selected_square = None
             wait(1000)
-            self.launchpad.reset()
+            # self.launchpad.reset()
             self.update_status()
 
         elif square == self.selected_square:
@@ -78,7 +80,7 @@ class Game:
             return
 
         logging.info(f"Unselecting {square}")
-        self.launchpad.reset()
+        # self.launchpad.reset()
         self.update_status()
         self.selected_square = None
 
@@ -98,7 +100,7 @@ class Game:
             return
 
         logging.info(f"Selected square is {square}")
-        self.launchpad.reset()
+        # self.launchpad.reset()
         self.selected_square = square
         self.launchpad.light_square(square, ORANGE)
 

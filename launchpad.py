@@ -1,36 +1,20 @@
 import logging
 
-import launchpad_py as launchpad
+import launchpad_py as lp
 from helpers import uci_to_launchpad
 from pygame.time import wait
-
-BLACK_SPACES = [
-    int(str(x) + str(y))
-    for x in range(1, 9)
-    for y in range(1, 9)
-    if (y % 2 == 0 and x % 2 == 0) or (y % 2 != 0 and x % 2 != 0)
-]
-BLACK_SPACE_COLOR = (0, 0, 30)
-
-
-WHITE_SPACES = [
-    int(str(x) + str(y))
-    for x in range(1, 9)
-    for y in range(1, 9)
-    if int(str(x) + str(y)) not in BLACK_SPACES
-]
-WHITE_SPACE_COLOR = (5, 5, 3)
+from constants import *
 
 
 class Launchpad:
     def __init__(self):
-        self.lp = launchpad.Launchpad()
+        self.lp = lp.Launchpad()
         if self.lp.Check(0):
-            self.lp = launchpad.LaunchpadPro()
+            self.lp = lp.LaunchpadPro()
             if self.lp.Open(0):
                 logging.info("Launchpad Pro Initialized")
             else:
-                raise Exception(message="ERROR: Failed to initialize launchpad")
+                raise Exception("ERROR: Failed to initialize launchpad")
 
         self.reset()
 
@@ -93,6 +77,3 @@ class Launchpad:
     def _set_unmodified(self, space):
         if space in self.modified_spaces:
             self.modified_spaces.remove(space)
-
-
-launchpad = Launchpad()
