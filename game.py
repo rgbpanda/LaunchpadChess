@@ -86,11 +86,7 @@ class Game:
             logging.error(f"Cannot unselect {square}, it is not selected!")
             return
 
-        valid_moves = set(
-            str(move)[2:]
-            for move in self.board.legal_moves
-            if str(move).startswith(square)
-        )  # These are the possible places that the piece on the selected square can move
+        valid_moves = self._get_valid_moves(square)
 
         for move_square in valid_moves:
             self.launchpad.reset_square(move_square)
@@ -104,12 +100,7 @@ class Game:
             logging.error(f"Cannot select {square}, it is already selected!")
             return
 
-        valid_moves = set(
-            str(move)[2:4]
-            for move in self.board.legal_moves
-            if str(move).startswith(square)
-        )  # These are the possible places that the piece on the selected square can move
-
+        valid_moves = self._get_valid_moves(square)
         if not valid_moves:
             logging.info(f"No valid moves from {square}, ignoring input")
             return
@@ -199,3 +190,11 @@ class Game:
         game.headers["Date"] = datetime.now().strftime("%Y.%m.%d")
         game.headers["Result"] = board.result()
         return game
+
+    def _get_valid_moves(self, square):
+        valid_moves = set(
+            str(move)[2:4]
+            for move in self.board.legal_moves
+            if str(move).startswith(square)
+        )  # These are the possible places that the piece on the selected square can move
+        return valid_moves
