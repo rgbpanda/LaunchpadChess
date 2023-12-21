@@ -13,6 +13,12 @@ class Launchpad:
             self.lp = lp.LaunchpadPro()
             if self.lp.Open(0):
                 logging.info("Launchpad Pro Initialized")
+                self.lp.LedSetMode(0)
+                # for i in range(0, 1000):
+                #     print(i)
+                #     wait(50)
+                #     self.lp
+                #     self.lp.LedCtrlRaw(i, 255, 255, 255)
             else:
                 raise Exception("ERROR: Failed to initialize launchpad")
 
