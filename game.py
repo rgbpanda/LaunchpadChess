@@ -62,7 +62,8 @@ class Game:
             self.launchpad.light_square(square, PURPLE)
             all_moves = [str(move) for move in self.board.legal_moves]
             if (self.selected_square + square + "q") in all_moves:
-                self.board.push(chess.Move.from_uci(self.selected_square + square + "q"))
+                promotion = self._get_promotion()
+                self.board.push(chess.Move.from_uci(self.selected_square + square + promotion))
             else:
                 self.board.push(chess.Move.from_uci(self.selected_square + square))
             self.selected_square = None
@@ -182,3 +183,26 @@ class Game:
         game.headers["Date"] = datetime.now().strftime("%Y.%m.%d")
         game.headers["Result"] = board.result()
         return game
+
+    def _get_promotion(self):
+            self.launchpad._set_color_uci("i6", GREEN)
+            self.launchpad._set_color_uci("i5", RED)
+            self.launchpad._set_color_uci("i4", BLUE)
+            self.launchpad._set_color_uci("i3", WHITE)
+            selected_promotion = None
+            while selected_promotion is None:
+                event = self.launchpad.poll_for_event()
+                if event is not None:
+                    if event == "i6":
+                        selected_promotion = "q"
+                    if event == "i5":
+                        selected_promotion = "r"
+                    if event == "i4":
+                        selected_promotion = "b"
+                    if event == "i3":
+                        selected_promotion = "n"
+            self.launchpad._set_color_uci("i6", OFF)
+            self.launchpad._set_color_uci("i5", OFF)
+            self.launchpad._set_color_uci("i4", OFF)
+            self.launchpad._set_color_uci("i3", OFF)
+            return selected_promotion
