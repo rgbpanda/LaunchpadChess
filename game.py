@@ -60,7 +60,11 @@ class Game:
         elif square in self.valid_moves:
             self.launchpad.reset()
             self.launchpad.light_square(square, PURPLE)
-            self.board.push(chess.Move.from_uci(self.selected_square + square))
+            all_moves = [str(move) for move in self.board.legal_moves]
+            if (self.selected_square + square + "q") in all_moves:
+                self.board.push(chess.Move.from_uci(self.selected_square + square + "q"))
+            else:
+                self.board.push(chess.Move.from_uci(self.selected_square + square))
             self.selected_square = None
             wait(1000)
             self.launchpad.reset()
@@ -88,7 +92,7 @@ class Game:
             return
 
         valid_moves = set(
-            str(move)[2:]
+            str(move)[2:4]
             for move in self.board.legal_moves
             if str(move).startswith(square)
         )  # These are the possible places that the piece on the selected square can move
