@@ -1,3 +1,3 @@
-from game import Game
+from launchpad_game import LaunchpadGame
 
-Game()
+LaunchpadGame()
