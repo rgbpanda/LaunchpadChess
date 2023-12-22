@@ -13,12 +13,6 @@ class Launchpad:
             self.lp = lp.LaunchpadPro()
             if self.lp.Open(0):
                 logging.info("Launchpad Pro Initialized")
-                self.lp.LedSetMode(0)
-                # for i in range(0, 1000):
-                #     print(i)
-                #     wait(50)
-                #     self.lp
-                #     self.lp.LedCtrlRaw(i, 255, 255, 255)
             else:
                 raise Exception("ERROR: Failed to initialize launchpad")
 
@@ -27,11 +21,11 @@ class Launchpad:
     def reset(self):
         self.lp.Reset()
         self._create_checkerboard()
-        self.modified_spaces = []
+        # self.modified_spaces = []
 
     def reset_space(self, space):
-        if space in self.modified_spaces:
-            self._set_unmodified(space)
+        # if space in self.modified_spaces:
+        #     self._set_unmodified(space)
 
         if space in WHITE_SPACES:
             self._light_space(space, WHITE_SPACE_COLOR)
@@ -44,7 +38,7 @@ class Launchpad:
                 self._light_space(space, WHITE_SPACE_COLOR)
             elif space in BLACK_SPACES:
                 self._light_space(space, BLACK_SPACE_COLOR)
-        self.modified_spaces = []
+        # self.modified_spaces = []
 
     def poll_for_event(self):
         events = self.lp.ButtonStateRaw(returnPressure=True)
@@ -65,7 +59,7 @@ class Launchpad:
     # Color is a tuple containing the RGB values to set that square
     def set_color_raw(self, space, color):
         self._light_space(space, color)
-        self._set_modified(space)
+        # self._set_modified(space)
 
     # Chess square is a string representing the chess square i.e. "a8"
     # Color is a tuple containing the RGB values to set that square
@@ -77,9 +71,9 @@ class Launchpad:
         space = uci_to_launchpad(uci)
         self.set_color_raw(space, color)
 
-    def _set_modified(self, space):
-        self.modified_spaces.append(space)
+    # def _set_modified(self, space):
+    #     self.modified_spaces.append(space)
 
-    def _set_unmodified(self, space):
-        if space in self.modified_spaces:
-            self.modified_spaces.remove(space)
+    # def _set_unmodified(self, space):
+    #     if space in self.modified_spaces:
+    #         self.modified_spaces.remove(space)
