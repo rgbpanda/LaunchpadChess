@@ -14,6 +14,8 @@ class Game:
 
     def reset(self):
         self.board.reset()
+        for move in self.board.legal_moves:
+            print(str(move))
 
     def update_status(self):
         print(f"STALEMATE: {self.board.is_stalemate()}")
@@ -91,9 +93,7 @@ class Game:
         #     return
 
         # self._blink_square(square, RED, YELLOW) # Blink square to show player they cannot move there
-        print(square)
         valid = self.get_valid_moves(square)
-        print(valid)
         # Player made a valid move
         if square in valid:
             move_from = self.selected_square
@@ -116,9 +116,9 @@ class Game:
     def get_valid_moves(self, square):
         for move in self.board.legal_moves:
             valid_moves = []
-            print(square)
+            # print(str(move)[0:2])
             if str(move)[0:2] == square:
-                valid_moves.append(str(move))
+                valid_moves.append(str(move)[2:4])
             # print(str(move))
             # print(str(move)[2:4])
         return valid_moves

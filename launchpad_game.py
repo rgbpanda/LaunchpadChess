@@ -26,9 +26,9 @@ class LaunchpadGame:
         self.start_game()
 
     def start_game(self):
+        self.game.reset()
         self.launchpad.reset()
         self._set_player_indicator()
-        self.game.reset()
         while True:
             event = self.launchpad.poll_for_event()
             if event:
@@ -59,28 +59,26 @@ class LaunchpadGame:
             else:
                 self._blink_square(square, RED, YELLOW)
 
-
-
     def _unselect_selected_square(self):
+        logging.info(f"Unselecting square {self.selected_square}")
         for square in [self.selected_square] + self.valid_move_squares + self.indicated_squares:
             self._reset_square(square)
 
-        logging.info(f"Unselecting {square}")
-        self.update_status()
+        # self.update_status()
         self.selected_square = None
 
     def _select_square(self, square):
+        logging.info(f"Selecting square {square}")
         valid_moves = self.game.get_valid_moves(square)
         if not valid_moves:
             logging.info(f"No valid moves from {square}, ignoring input")
             return
-
-        logging.info(f"Selected square is {square}")
         self.selected_square = square
         self.launchpad.set_color_uci(square, ORANGE)
 
         self.valid_moves = valid_moves
         for move_square in valid_moves:
+            print(valid_moves)
             self.launchpad.set_color_uci(move_square, GREEN)
 
     def _blink_square(self, square, color1, color2, blinks=2):
