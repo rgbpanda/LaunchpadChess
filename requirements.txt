@@ -4,4 +4,4 @@ launchpad-py==0.9.1
 # then install from there.
 # git+https://github.com/pygame/pygame.git
 stockfish==3.28.0
-chess==1.9.4
+chess==1.10.0
